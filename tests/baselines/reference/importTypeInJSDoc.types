@@ -37,14 +37,14 @@ export = MyClass;
  */
 
 let a = /** @type {Foo} */(/** @type {*} */(undefined)); 
->a : import("tests/cases/conformance/types/import/externs")
+>a : any
 >(/** @type {*} */(undefined)) : import("tests/cases/conformance/types/import/externs")
 >(undefined) : any
 >undefined : undefined
 
 a = new Foo({doer: Foo.Bar});
 >a = new Foo({doer: Foo.Bar}) : import("tests/cases/conformance/types/import/externs")
->a : import("tests/cases/conformance/types/import/externs")
+>a : any
 >new Foo({doer: Foo.Bar}) : import("tests/cases/conformance/types/import/externs")
 >Foo : typeof import("tests/cases/conformance/types/import/externs")
 >{doer: Foo.Bar} : { doer: (x: string, y?: number) => void; }

@@ -25858,7 +25858,9 @@ namespace ts {
                 case SyntaxKind.ParenthesizedExpression: {
                     // Like in `checkParenthesizedExpression`, an `/** @type {xyz} */` comment before a parenthesized expression acts as a type cast.
                     const tag = isInJSFile(parent) ? getJSDocTypeTag(parent) : undefined;
-                    return tag ? getTypeFromTypeNode(tag.typeExpression.type) : getContextualType(parent as ParenthesizedExpression, contextFlags);
+                    return !tag ? getContextualType(parent as ParenthesizedExpression, contextFlags) :
+                        isJSDocTypeTag(tag) && isConstTypeReference(tag.typeExpression.type) ? tryFindWhenConstTypeReference(parent as ParenthesizedExpression) :
+                        getTypeFromTypeNode(tag.typeExpression.type);
                 }
                 case SyntaxKind.NonNullExpression:
                     return getContextualType(parent as NonNullExpression, contextFlags);
