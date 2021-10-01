@@ -37702,6 +37702,7 @@ namespace ts {
             function checkClassMember(member: ClassElement | ParameterPropertyDeclaration, memberIsParameterProperty?: boolean) {
                 const hasOverride = hasOverrideModifier(member);
                 const hasStatic = isStatic(member);
+                const isJs = isInJSFile(member);
                 if (baseWithThis && (hasOverride || compilerOptions.noImplicitOverride)) {
                     const declaredProp = member.name && getSymbolAtLocation(member.name) || getSymbolAtLocation(member);
                     if (!declaredProp) {
@@ -37717,8 +37718,19 @@ namespace ts {
                     if (prop && !baseProp && hasOverride) {
                         const suggestion = getSuggestedSymbolForNonexistentClassMember(symbolName(declaredProp), baseType);
                         suggestion ?
-                            error(member, Diagnostics.This_member_cannot_have_an_override_modifier_because_it_is_not_declared_in_the_base_class_0_Did_you_mean_1, baseClassName, symbolToString(suggestion)) :
-                            error(member, Diagnostics.This_member_cannot_have_an_override_modifier_because_it_is_not_declared_in_the_base_class_0, baseClassName);
+                            error(
+                                member,
+                                isJs ?
+                                    Diagnostics.This_member_cannot_have_a_JSDoc_comment_with_an_override_tag_because_it_is_not_declared_in_the_base_class_0_Did_you_mean_1 :
+                                    Diagnostics.This_member_cannot_have_an_override_modifier_because_it_is_not_declared_in_the_base_class_0_Did_you_mean_1,
+                                baseClassName,
+                                symbolToString(suggestion)) :
+                            error(
+                                member,
+                                isJs ?
+                                    Diagnostics.This_member_cannot_have_a_JSDoc_comment_with_an_override_tag_because_it_is_not_declared_in_the_base_class_0 :
+                                    Diagnostics.This_member_cannot_have_an_override_modifier_because_it_is_not_declared_in_the_base_class_0,
+                                baseClassName);
                     }
                     else if (prop && baseProp?.declarations && compilerOptions.noImplicitOverride && !nodeInAmbientContext) {
                         const baseHasAbstract = some(baseProp.declarations, hasAbstractModifier);
@@ -37728,8 +37740,12 @@ namespace ts {
 
                         if (!baseHasAbstract) {
                             const diag = memberIsParameterProperty ?
-                                Diagnostics.This_parameter_property_must_have_an_override_modifier_because_it_overrides_a_member_in_base_class_0 :
-                                Diagnostics.This_member_must_have_an_override_modifier_because_it_overrides_a_member_in_the_base_class_0;
+                                isJs ?
+                                    Diagnostics.This_parameter_property_must_have_a_JSDoc_comment_with_an_override_tag_because_it_overrides_a_member_in_the_base_class_0 :
+                                    Diagnostics.This_parameter_property_must_have_an_override_modifier_because_it_overrides_a_member_in_base_class_0 :
+                                isJs ?
+                                    Diagnostics.This_member_must_have_a_JSDoc_comment_with_an_override_tag_because_it_overrides_a_member_in_the_base_class_0 :
+                                    Diagnostics.This_member_must_have_an_override_modifier_because_it_overrides_a_member_in_the_base_class_0;
                             error(member, diag, baseClassName);
                         }
                         else if (hasAbstractModifier(member) && baseHasAbstract) {
@@ -37739,7 +37755,12 @@ namespace ts {
                 }
                 else if (hasOverride) {
                     const className = typeToString(type);
-                    error(member, Diagnostics.This_member_cannot_have_an_override_modifier_because_its_containing_class_0_does_not_extend_another_class, className);
+                    error(
+                        member,
+                        isJs ?
+                            Diagnostics.This_member_cannot_have_a_JSDoc_comment_with_an_override_tag_because_its_containing_class_0_does_not_extend_another_class :
+                            Diagnostics.This_member_cannot_have_an_override_modifier_because_its_containing_class_0_does_not_extend_another_class,
+                        className);
                 }
             }
         }
